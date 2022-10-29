@@ -1,11 +1,133 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math"
+	"strings"
 )
 
 func main() {
+	example1()
+	example2()
+	example3()
+	example4()
+}
+
+func example4() {
+	err := validateLength("aaaaaaa")
+	if nil != err {
+		fmt.Println(err.Error())
+	}
+	err = validateAge(12)
+	if nil != err {
+		fmt.Println(err.Error())
+	}
+}
+
+// validateLength return false when string length less than 8
+// Please change return type to error with message "too short string"
+func validateLength(s string) error {
+	if len([]rune(s)) < 8 {
+		return errors.New("too short string")
+	}
+	return nil
+}
+
+var ageError = errors.New("your age is negative!")
+
+// in case of too young age please create a new type ErrTooYoung int` with method `Error() string`
+// example error message: "17 is too young"
+func validateAge(n int) error {
+	if n < 0 {
+		return ageError
+	}
+	if n < 18 {
+		return ErrTooYoung(n)
+	}
+	return nil
+}
+
+type ErrTooYoung int
+
+func (e ErrTooYoung) Error() string {
+	return fmt.Sprintf("%d is too young", e)
+}
+
+func example3() {
+	fmt.Println(VolumeOf(cube{
+		edge: 10,
+	}))
+
+	fmt.Println(VolumeOf(triangularPrism{
+		base:     5,
+		attitude: 7,
+		height:   10,
+	}))
+}
+
+type volumer interface {
+	Volume() float64
+}
+
+type cube struct {
+	edge float64
+} // edge x edge x edge
+
+type triangularPrism struct {
+	base     float64
+	attitude float64
+	height   float64
+} // 0.5 x base x attitude x height
+
+func (c cube) Volume() float64 {
+	return c.edge * c.edge * c.edge
+}
+
+func (t triangularPrism) Volume() float64 {
+	return 0.5 * t.base * t.attitude * t.height
+}
+
+func VolumeOf(v volumer) float64 {
+	return v.Volume()
+}
+
+func example2() {
+	fmt.Println(wordCount("ake ake boss boss"))
+
+	book := Book{
+		Name:   "Harry Potter",
+		Author: "J. K. Rowling",
+	}
+
+	book.SetName("Eknarong")
+	fmt.Println(book.String())
+
+}
+
+type Book struct {
+	Name   string
+	Author string
+}
+
+func (book Book) String() string {
+	return book.Name + " by " + book.Author
+}
+
+func (book *Book) SetName(name string) {
+	book.Name = name
+}
+
+func wordCount(s string) map[string]int {
+	m := map[string]int{}
+	temp := strings.Split(s, " ")
+	for _, word := range temp {
+		m[word] = m[word] + 1
+	}
+	return m
+}
+
+func example1() {
 	fmt.Println("Hello, ake!")
 	fmt.Println(greeting("Pallat"))
 	fmt.Println(greetingWithAge("Pallat", 30))
